@@ -63,14 +63,6 @@ app.get('/subjects', (req, res) => {
   });
 });
 
-// File upload route example
-app.post('/upload-image', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
-  res.send('File uploaded successfully: ' + req.file.originalname);
-});
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
