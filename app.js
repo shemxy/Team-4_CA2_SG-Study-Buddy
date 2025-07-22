@@ -1,62 +1,76 @@
 const express = require('express');
 const mysql = require('mysql2');
 const multer = require('multer');
+const path = require('path');
+
 const app = express();
 
+// Multer storage setup for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/images');
+    cb(null, 'public/images'); // make sure this folder exists
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   }
 });
+const upload = multer({ storage: storage });
 
-const upload = multer({ storage: storage});
-
-// Create MySQL connection
+// MySQL connection config with your credentials
 const connection = mysql.createConnection({
   host: 'dddgt5.h.filess.io',
   user: 'C237StudyBuddy_collegedie',
   password: '768f143d94d757f1499c22e82cd2786488a7d407',
-  database: 'C237StudyBuddy_collegedie'
+  database: 'C237StudyBuddy_collegedie',
+  port: 61002
 });
-
 
 connection.connect((err) => {
   if (err) {
     console.error('Error connecting to MySQL:', err);
-    return;
+    process.exit(1);
   }
   console.log('Connected to MySQL database');
 });
 
-// Set up view engine
+// View engine setup
 app.set('view engine', 'ejs');
-
-// enable static files
-app.use(express.static('public'));
-
-// enable form processing
-app.use(express.urlencoded({
-  extended: false
-}));
-
-// enable static files
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 61002;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// connecting to ejs 
+// Root route - test database connection and render status
+app.get('/', (req, res) => {
+  connection.ping((err) => {
+    if (err) {
+      console.error('Database connection failed:', err);
+      return res.render('index', { status: 'Database connection failed' });
+    }
+    res.render('index', { status: 'Successfully connected to MySQL database!' });
+  });
+});
+
+// Get all subjects and render 'subjects' view
 app.get('/subjects', (req, res) => {
   const sql = 'SELECT * FROM subjects';
   connection.query(sql, (error, results) => {
     if (error) {
       console.error('Database query error:', error.message);
-      return res.status(500).send('Error Retrieving Products');
+      return res.status(500).send('Error retrieving subjects');
     }
     res.render('subjects', { subjects: results });
   });
 });
 
+// File upload route example
+app.post('/upload-image', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+  res.send('File uploaded successfully: ' + req.file.originalname);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
