@@ -45,3 +45,15 @@ app.use(express.static('public'));
 
 const PORT = process.env.PORT || 61002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Define routes
+app.get('/subjects/:id', (req, res) => {
+  const sql = 'SELECT * FROM subjects';
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error.message);
+      return res.status(500).send('Error Retrieving Products');
+    }
+    res.render('subjects', { subjects: results });
+  });
+});
