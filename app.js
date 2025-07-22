@@ -51,7 +51,39 @@ app.get('/', (req, res) => {
   });
 });
 
-// Get all subjects and render 'subjects' view
+app.get('/exams', (req, res) => {
+  const sql = 'SELECT * FROM exams';
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error.message);
+      return res.status(500).send('Error retrieving exams');
+    }
+    res.render('exams', { exams: results });
+  });
+});
+
+app.get('/resources', (req, res) => {
+  const sql = 'SELECT * FROM resources';
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error.message);
+      return res.status(500).send('Error retrieving resources');
+    }
+    res.render('resources', { resources: results });
+  });
+});
+
+app.get('/study_groups', (req, res) => {
+  const sql = 'SELECT * FROM study_groups';
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error.message);
+      return res.status(500).send('Error retrieving study_groups');
+    }
+    res.render('study_groups', { study_groups: results });
+  });
+});
+
 app.get('/subjects', (req, res) => {
   const sql = 'SELECT * FROM subjects';
   connection.query(sql, (error, results) => {
@@ -60,6 +92,17 @@ app.get('/subjects', (req, res) => {
       return res.status(500).send('Error retrieving subjects');
     }
     res.render('subjects', { subjects: results });
+  });
+});
+
+app.get('/timetable', (req, res) => {
+  const sql = 'SELECT * FROM timetable';
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error('Database query error:', error.message);
+      return res.status(500).send('Error retrieving timetable');
+    }
+    res.render('timetable', { timetable: results });
   });
 });
 
