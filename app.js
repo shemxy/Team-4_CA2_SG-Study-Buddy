@@ -21,6 +21,8 @@ const connection = mysql.createConnection({
   password: '768f143d94d757f1499c22e82cd2786488a7d407',
   database: 'C237StudyBuddy_collegedie'
 });
+
+
 connection.connect((err) => {
   if (err) {
     console.error('Error connecting to MySQL:', err);
@@ -46,8 +48,8 @@ app.use(express.static('public'));
 const PORT = process.env.PORT || 61002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Define routes
-app.get('/subjects/:id', (req, res) => {
+// connecting to ejs 
+app.get('/subjects', (req, res) => {
   const sql = 'SELECT * FROM subjects';
   connection.query(sql, (error, results) => {
     if (error) {
@@ -56,4 +58,10 @@ app.get('/subjects/:id', (req, res) => {
     }
     res.render('subjects', { subjects: results });
   });
+});
+
+// Start the server
+const PORT = process.env.PORT || 61002;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
