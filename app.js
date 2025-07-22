@@ -28,3 +28,20 @@ connection.connect((err) => {
   }
   console.log('Connected to MySQL database');
 });
+
+// Set up view engine
+app.set('view engine', 'ejs');
+
+// enable static files
+app.use(express.static('public'));
+
+// enable form processing
+app.use(express.urlencoded({
+  extended: false
+}));
+
+// enable static files
+app.use(express.static('public'));
+
+const PORT = process.env.PORT || 61002;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
