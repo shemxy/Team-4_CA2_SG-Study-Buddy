@@ -5,7 +5,10 @@ What’s completed:
 - able to share code via github
 - able to run all ejs files using app get
 What’s still in progress:
-- functionalities
+- functionalities (add, delete, edit. CRUD features + search)
 - design
+- user role
+- admin role
+- user/admin database
 Any blockers (e.g., login not working, search incomplete):
 - n/a
