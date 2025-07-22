@@ -1,5 +1,3 @@
-Progress
-
 What’s completed:
 
 What’s still in progress:
