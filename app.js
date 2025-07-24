@@ -45,6 +45,8 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 * 7}
 }));
 
+app.use(flash());
+
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
@@ -151,10 +153,10 @@ const validateRegistration = (req, res , next) => {
 
 app.post('/register', validateRegistration, (req, res) => {
     //******** TODO: Update register route to include role. ********//
-    const { username, email, password, address, contact, role } = req.body;
+    const { username, email, password, address, contact } = req.body;
 
-    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?)';
-    db.query(sql, [username, email, password, address, contact ,role], (err, result) => {
+    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?, ?)';
+    connection.query(sql, [username, email, password, address, contact], (err, result) => {
         if (err) {
             throw err;
         }
