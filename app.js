@@ -113,7 +113,7 @@ app.get('/login', (req, res) => {
       console.error('Database query error:', error.message);
       return res.status(500).send('Error retrieving login');
     }
-    res.render('users', { users: results });
+    res.render('login', { login: results });
   });
 });
 
