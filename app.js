@@ -45,8 +45,6 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 * 7}
 }));
 
-app.use(flash());
-
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
@@ -132,6 +130,7 @@ app.get('/', (req, res) => {
 
 //new code testing
 
+
 app.get('/register', (req, res) => {
     res.render('register', { messages: req.flash('error'), formData: req.flash('formData')[0] });
 });
@@ -153,10 +152,10 @@ const validateRegistration = (req, res , next) => {
 
 app.post('/register', validateRegistration, (req, res) => {
     //******** TODO: Update register route to include role. ********//
-    const { username, email, password, address, contact } = req.body;
+    const { username, email, password, address, contact, role } = req.body;
 
-    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?, ?)';
-    connection.query(sql, [username, email, password, address, contact], (err, result) => {
+    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?)';
+    db.query(sql, [username, email, password, address, contact ,role], (err, result) => {
         if (err) {
             throw err;
         }
@@ -166,44 +165,54 @@ app.post('/register', validateRegistration, (req, res) => {
     });
 });
 
-app.get('/login', (req, res) => {
-
-  res.render('login', {
-    message: req.flash('success'), //Retrieve success message from the session and pass them to the view
-    errors: req.flash('error') // Retrieve error message from the session and pass time to the view
-  });
-});
-
-app.post('/login', (req, res) => {
-  const {username, password} = req.body;
-
-  // Validate username and password
-  if (!username || !password) {
-    req.flash('error', 'All fields are required');
-    return res.redirect('/login');
-  }
-  const sql = 'SELECT * FROM users WHERE username = ? AND password = SHA1(?)';
-  db.query(sql, [email, password], (err, results) => {
-    if (err) {
-      throw err;
-    }
-
-    if (results.length > 0) {
-      // Succesful login
-      req.session.user = results[0]; // store user in session
-      req.flash('success', 'Login successful!');
-      res.redirect('/');
-    } else {
-      // Invalid credentials
-      req.flash('error', 'Invalid username or password.');
-      res.redirect('/login');
-    }
-  });
-});
-
 //new code testing end
+
+//login test
+const checkAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
+    } else {
+        req.flash('error', 'Please log in to view this resource');
+        res.redirect('/');
+    }
+};
+
+app.get('/', (req,res) => {
+    
+    res.render('login', {
+        messages: req.flash('success'),
+        errors: req.flash('error')
+    });
+});
+app.post('/', (req, res) => {
+    const { email, password } = req.body;
+
+    // validate email and password
+    if (!email || !password) {
+        req.flash('error' , 'All fields are required.');
+        return res.redirect('/');
+    }
+    const sql = 'SELECT  * FROM users WHERE email = ? AND password = SHA1(?)';
+    db.query(sql, [email, password], (err, results) => {
+        if (err) {
+            throw err;
+        }
+
+        if (results.length > 0) {
+            req.session.user = results[0];
+            req.flash('success', 'login successful!');
+            res.redirect('/');
+            res.redirect('/index');
+        } else {
+            req.flash('error', 'invalid email or password.');
+            req.redirect('/');
+        }
+    });
+});
+//login test end
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+//new code
