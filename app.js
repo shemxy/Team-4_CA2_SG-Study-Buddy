@@ -117,6 +117,35 @@ app.get('/login', (req, res) => {
   });
 });
 
+const validateRegistration = (req, res , next) => {
+    const { username, email, password, address, contact} = req.body;
+
+    if (!username || !email || !password || !address || !contact) {
+        return res.status(400).send('All fields are required.');
+    } 
+
+    if (password.length < 6) {
+        req.flash('error', 'Password should be at least 6 or more characters long');
+        req.flash('formData', req.body);
+        return res.redirect('/register');
+    }
+    next();
+};
+
+app.post('/register', validateRegistration, (req, res) => {
+    //******** TODO: Update register route to include role. ********//
+    const { username, email, password, address, contact, role } = req.body;
+
+    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?)';
+    db.query(sql, [username, email, password, address, contact ,role], (err, result) => {
+        if (err) {
+            throw err;
+        }
+        console.log(result);
+        req.flash('success', 'Registration successful! Please log in.');
+        res.redirect('/login');
+    });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
