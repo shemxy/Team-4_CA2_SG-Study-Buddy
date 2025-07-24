@@ -138,13 +138,6 @@ const checkAuthenticated = (req, res, next) => {
   res.redirect('/');
 };
 
-// (Optional) Logout route
-app.get('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/');
-  });
-});
-
 // logout route //
 app.get('/logout', (req, res) => {
   req.session.destroy();
