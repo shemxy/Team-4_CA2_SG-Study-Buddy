@@ -51,6 +51,32 @@ app.get('/', (req, res) => {
   });
 });
 
+// GET: show registration page
+app.get('/register', (req, res) => {
+  res.render('register', { error: null, success: null });
+});
+
+// POST: handle user registration
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  const checkUserSql = 'SELECT * FROM users WHERE username = ?';
+  db.query(checkUserSql, [username], (err, results) => {
+    if (err) throw err;
+
+    if (results.length > 0) {
+      res.render('register', { error: 'Username already taken', success: null });
+    } else {
+      const insertUserSql = 'INSERT INTO users (username, password) VALUES (?, ?)';
+      db.query(insertUserSql, [username, password], (err, results) => {
+        if (err) throw err;
+        res.render('register', { error: null, success: 'Registration successful! You can now log in.' });
+      });
+    }
+  });
+});
+
+
 app.get('/exams', (req, res) => {
   const sql = 'SELECT * FROM exams';
   connection.query(sql, (error, results) => {
