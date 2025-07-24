@@ -145,7 +145,11 @@ app.get('/logout', (req, res) => {
   });
 });
 
-// Your other routes (exams, timetable, etc.) remain unchanged...
+// logout route //
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
+});
 
 // ✅ Start Server
 const PORT = process.env.PORT || 61002;
