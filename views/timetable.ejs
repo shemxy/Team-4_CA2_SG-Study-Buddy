@@ -149,6 +149,36 @@
             <p>&copy; SG Study Buddy & Co.</p>
         </footer>
     </div>
+
+    <div class="container content-wrapper">
+        <h2 class="mb-4">Study Timetable</h2>
+
+        <% if (entries.length === 0) { %>
+            <div class="alert alert-warning">
+                No timetable entries found.
+            </div>
+        <% } else { %>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Day</th>
+                        <th>Time Slot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% entries.forEach(function(entry) { %>
+                        <tr>
+                            <td><%= entry.subject %></td>
+                            <td><%= entry.day %></td>
+                            <td><%= entry.time_slot %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
