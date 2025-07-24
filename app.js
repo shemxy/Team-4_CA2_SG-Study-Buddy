@@ -1,22 +1,11 @@
 const express = require('express');
 const mysql = require('mysql2');
+
 const session = require('express-session');
+
 const flash = require('connect-flash');
-const multer = require('multer');
-const path = require('path');
 
 const app = express();
-
-// Setup storage for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/images');
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
-const upload = multer({ storage });
 
 // MySQL config
 const db = mysql.createConnection({
@@ -27,67 +16,61 @@ const db = mysql.createConnection({
   port: 61002
 });
 
-db.connect(err => {
-  if (err) {
-    console.error('MySQL connection error:', err);
-    process.exit(1);
-  }
-  console.log('Connected to MySQL database');
+
+db.connect((err) => {
+    if (err) {
+        throw err;
+    }
+    console.log('Connected to database');
 });
 
-// Middleware setup
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
+
+//******** TODO: Insert code for Session Middleware below ********//
 app.use(session({
-  secret: 'secret',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7}
 }));
+
 app.use(flash());
 
+// Setting up EJS
 app.set('view engine', 'ejs');
 
-// ------------------- Routes ------------------- //
-
-// ✅ Login Page
-app.get('/', (req, res) => {
-  res.render('login', {
-    messages: req.flash('success'),
-    errors: req.flash('error')
-  });
-});
-
-// ✅ Login Form Submission
-app.post('/', (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    req.flash('error', 'All fields are required.');
-    return res.redirect('/');
-  }
-
-  const sql = 'SELECT * FROM users WHERE email = ? AND password = SHA1(?)';
-  db.query(sql, [email, password], (err, results) => {
-    if (err) {
-      console.error('Login query error:', err);
-      return res.status(500).send('Internal server error');
-    }
-
-    if (results.length > 0) {
-      req.session.user = results[0];
-      return res.redirect('/index');
+//******** TODO: Create a Middleware to check if user is logged in. ********//
+const checkAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
     } else {
-      req.flash('error', 'Invalid email or password.');
-      return res.redirect('/');
+        req.flash('error', 'Please log in to view this resource');
+        res.redirect('/login');
     }
-  });
+};
+
+//******** TODO: Create a Middleware to check if user is admin. ********//
+const checkAdmin = (req, res, next) => {
+    if (req.session.user.role === 'admin') {
+        return next();
+    } else {
+        req.flash('error' , 'access denied')
+        res.redirect('/dashboard');
+    }  
+};
+
+// Routes
+app.get('/', (req, res) => {
+    res.render('index', { user: req.session.user, messages: req.flash('success')});
 });
 
 app.get('/register', (req, res) => {
     res.render('register', { messages: req.flash('error'), formData: req.flash('formData')[0] });
 });
 
+
+//******** TODO: Create a middleware function validateRegistration ********//
 const validateRegistration = (req, res , next) => {
     const { username, email, password, address, contact} = req.body;
 
@@ -101,51 +84,81 @@ const validateRegistration = (req, res , next) => {
         return res.redirect('/register');
     }
     next();
-};
+}
 
+
+//******** TODO: Integrate validateRegistration into the register route. ********//
 app.post('/register', validateRegistration, (req, res) => {
+    //******** TODO: Update register route to include role. ********//
     const { username, email, password, address, contact, role } = req.body;
 
-    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?, ?)';
-    db.query(sql, [username, email, password, address, contact, role || 'user'], (err, result) => {
+    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?)';
+    db.query(sql, [username, email, password, address, contact ,role], (err, result) => {
         if (err) {
-            console.error('Registration error:', err);
-            req.flash('error', 'Registration failed. Please try again.');
-            return res.redirect('/register');
+            throw err;
         }
         console.log(result);
         req.flash('success', 'Registration successful! Please log in.');
+        res.redirect('/login');
+    });
+});
+
+//******** TODO: Insert code for login routes to render login page below ********//
+app.get('/login', (req,res) => {
+    
+    res.render('login', {
+        messages: req.flash('success'),
+        errors: req.flash('error')
+    });
+});
+
+//******** TODO: Insert code for login routes for form submission below ********//
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+
+    // validate email and password
+    if (!email || !password) {
+        req.flash('error' , 'All fields are required.');
+        return res.redirect('/login');
+    }
+    const sql = 'SELECT  * FROM users WHERE email = ? AND password = SHA1(?)';
+    db.query(sql, [email, password], (err, results) => {
+        if (err) {
+            throw err;
+        }
+
+        if (results.length > 0) {
+            req.session.user = results[0];
+            req.flash('success', 'login successful!');
+            res.redirect('/');
+            res.redirect('/dashboard');
+        } else {
+            req.flash('error', 'invalid email or password.');
+            req.redirect('/login');
+        }
+    });
+});
+
+//******** TODO: Insert code for dashboard route to render dashboard page for users. ********//
+app.get('/dashboard', checkAuthenticated, (req, res) => {
+    res.render('dashboard', { user: req.session.user });
+});
+
+//******** TODO: Insert code for admin route to render dashboard page for admin. ********//
+app.get('/admin', checkAuthenticated, checkAdmin, (req, res) => {
+    res.render('admin' , {user:req.session.user});
+});
+
+//******** TODO: Insert code for logout route ********//
+app.get('/logout', (req, res) => {
+    app.get('/logout', (req, res) => {
+        req.session.destroy();
         res.redirect('/');
     });
 });
 
-// ✅ Index Page
-app.get('/index', (req, res) => {
-  db.ping(err => {
-    if (err) {
-      return res.render('index', { status: 'Database connection failed' });
-    }
-    res.render('index', { status: 'Successfully connected to MySQL database!' });
-  });
-});
 
-// Example protected route
-const checkAuthenticated = (req, res, next) => {
-  if (req.session.user) {
-    return next();
-  }
-  req.flash('error', 'Please log in to view this page');
-  res.redirect('/');
-};
-
-// logout route //
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/');
-});
-
-// ✅ Start Server
-const PORT = process.env.PORT || 61002;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Starting the server
+app.listen(3000, () => {
+    console.log('Server started on port 3000');
 });
