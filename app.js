@@ -38,6 +38,13 @@ connection.connect((err) => {
 });
 
 // View engine setup
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7}
+}));
+
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
@@ -121,6 +128,8 @@ app.get('/', (req, res) => {
   }); 
 });
 
+//new code testing
+
 const validateRegistration = (req, res , next) => {
     const { username, email, password, address, contact} = req.body;
 
@@ -151,6 +160,9 @@ app.post('/register', validateRegistration, (req, res) => {
     });
 });
 
+//new code testing end
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
