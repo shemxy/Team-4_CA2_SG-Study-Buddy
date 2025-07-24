@@ -107,13 +107,13 @@ app.get('/timetable', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const sql = 'SELECT * FROM login';
+  const sql = 'SELECT * FROM users';
   connection.query(sql, (error, results) => {
     if (error) {
       console.error('Database query error:', error.message);
       return res.status(500).send('Error retrieving login');
     }
-    res.render('login', { login: results });
+    res.render('users', { users: results });
   });
 });
 
