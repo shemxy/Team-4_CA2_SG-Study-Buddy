@@ -35,13 +35,13 @@ connection.connect((err) => {
 
 // View engine setup
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname,++ 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 61002;
 
 // Root route - test database connection and render status
-app.get('/', (req, res) => {
+app.get('/index', (req, res) => {
   connection.ping((err) => {
     if (err) {
       console.error('Database connection failed:', err);
@@ -106,7 +106,7 @@ app.get('/timetable', (req, res) => {
   });
 });
 
-app.get('/login', (req, res) => {
+app.get('/', (req, res) => {
   const sql = 'SELECT * FROM users';
   connection.query(sql, (error, results) => {
     if (error) {
@@ -114,10 +114,9 @@ app.get('/login', (req, res) => {
       return res.status(500).send('Error retrieving login');
     }
     res.render('login', { login: results });
-  });
+  }); 
 });
 
-//register
 const validateRegistration = (req, res , next) => {
     const { username, email, password, address, contact} = req.body;
 
@@ -132,7 +131,6 @@ const validateRegistration = (req, res , next) => {
     }
     next();
 };
-
 
 app.post('/register', validateRegistration, (req, res) => {
     //******** TODO: Update register route to include role. ********//
@@ -152,5 +150,3 @@ app.post('/register', validateRegistration, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-//login
