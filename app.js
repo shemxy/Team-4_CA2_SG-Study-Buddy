@@ -10,8 +10,8 @@ const db = mysql.createConnection({
   user: 'C237StudyBuddy_collegedie',
   password: '768f143d94d757f1499c22e82cd2786488a7d407',
   database: 'C237StudyBuddy_collegedie',
+  port: 61002
 });
-
 db.connect((err) => {
     if (err) {
         throw err;
