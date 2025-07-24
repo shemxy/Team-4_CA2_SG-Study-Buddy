@@ -166,6 +166,42 @@ app.post('/register', validateRegistration, (req, res) => {
     });
 });
 
+<<<<<<< HEAD
+app.get('/login', (req, res) => {
+
+  res.render('login', {
+    message: req.flash('success'), //Retrieve success message from the session and pass them to the view
+    errors: req.flash('error') // Retrieve error message from the session and pass time to the view
+  });
+});
+
+app.post('/login', (req, res) => {
+  const {username, password} = req.body;
+
+  // Validate username and password
+  if (!username || !password) {
+    req.flash('error', 'All fields are required');
+    return res.redirect('/login');
+  }
+  const sql = 'SELECT * FROM users WHERE username = ? AND password = SHA1(?)';
+  db.query(sql, [email, password], (err, results) => {
+    if (err) {
+      throw err;
+    }
+
+    if (results.length > 0) {
+      // Succesful login
+      req.session.user = results[0]; // store user in session
+      req.flash('success', 'Login successful!');
+      res.redirect('/');
+    } else {
+      // Invalid credentials
+      req.flash('error', 'Invalid username or password.');
+      res.redirect('/login');
+    }
+  });
+});
+
 //new code testing end
 
 app.listen(PORT, () => {
