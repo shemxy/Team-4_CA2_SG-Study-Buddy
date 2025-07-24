@@ -35,7 +35,7 @@ connection.connect((err) => {
 
 // View engine setup
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname,++ 'public')));
 app.use(express.urlencoded({ extended: false }));
 
 const PORT = process.env.PORT || 61002;
@@ -50,32 +50,6 @@ app.get('/', (req, res) => {
     res.render('index', { status: 'Successfully connected to MySQL database!' });
   });
 });
-
-// GET: show registration page
-app.get('/register', (req, res) => {
-  res.render('register', { error: null, success: null });
-});
-
-// POST: handle user registration
-app.post('/register', (req, res) => {
-  const { username, password } = req.body;
-
-  const checkUserSql = 'SELECT * FROM users WHERE username = ?';
-  db.query(checkUserSql, [username], (err, results) => {
-    if (err) throw err;
-
-    if (results.length > 0) {
-      res.render('register', { error: 'Username already taken', success: null });
-    } else {
-      const insertUserSql = 'INSERT INTO users (username, password) VALUES (?, ?)';
-      db.query(insertUserSql, [username, password], (err, results) => {
-        if (err) throw err;
-        res.render('register', { error: null, success: 'Registration successful! You can now log in.' });
-      });
-    }
-  });
-});
-
 
 app.get('/exams', (req, res) => {
   const sql = 'SELECT * FROM exams';
@@ -141,6 +115,36 @@ app.get('/login', (req, res) => {
     }
     res.render('login', { login: results });
   });
+});
+
+const validateRegistration = (req, res , next) => {
+    const { username, email, password, address, contact} = req.body;
+
+    if (!username || !email || !password || !address || !contact) {
+        return res.status(400).send('All fields are required.');
+    } 
+
+    if (password.length < 6) {
+        req.flash('error', 'Password should be at least 6 or more characters long');
+        req.flash('formData', req.body);
+        return res.redirect('/register');
+    }
+    next();
+};
+
+app.post('/register', validateRegistration, (req, res) => {
+    //******** TODO: Update register route to include role. ********//
+    const { username, email, password, address, contact, role } = req.body;
+
+    const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?)';
+    db.query(sql, [username, email, password, address, contact ,role], (err, result) => {
+        if (err) {
+            throw err;
+        }
+        console.log(result);
+        req.flash('success', 'Registration successful! Please log in.');
+        res.redirect('/login');
+    });
 });
 
 app.listen(PORT, () => {
