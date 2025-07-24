@@ -166,7 +166,6 @@ app.post('/register', validateRegistration, (req, res) => {
     });
 });
 
-<<<<<<< HEAD
 app.get('/login', (req, res) => {
 
   res.render('login', {
