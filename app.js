@@ -117,6 +117,7 @@ app.get('/login', (req, res) => {
   });
 });
 
+//register
 const validateRegistration = (req, res , next) => {
     const { username, email, password, address, contact} = req.body;
 
@@ -131,6 +132,7 @@ const validateRegistration = (req, res , next) => {
     }
     next();
 };
+
 
 app.post('/register', validateRegistration, (req, res) => {
     //******** TODO: Update register route to include role. ********//
@@ -150,3 +152,5 @@ app.post('/register', validateRegistration, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+//login
