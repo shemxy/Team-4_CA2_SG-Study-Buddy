@@ -1,24 +1,12 @@
+//login 
 <form action="/addReview" method="POST">
     <div class="mb-3">
         <label for="productName" class="form-label">Product Name:</label>
         <input type="text" class="form-control" id="productName" name="productName" required>
     </div>
     <div class="mb-3">
-        <label for="rating" class="form-label">Rating (e.g., 4/5, 8/10):</label>
-        <input type="text" class="form-control" id="rating" name="rating" required>
-    </div>
-    <div class="mb-3">
-        <label for="category" class="form-label">Category (e.g., Audio, Laptop, Gaming):</label>
-        <input type="text" class="form-control" id="category" name="category" required>
-    </div>
-    <div class="mb-3">
-        <label for="reviewText" class="form-label">Your Review:</label>
-        <textarea class="form-control" id="reviewText" name="reviewText" rows="5"></textarea>
-    </div>
-    <div class="mb-3">
-        <label for="image" class="form-label">Image Filename (e.g., product.jpg):</label>
-        <input type="text" class="form-control" id="image" name="image">
-        <small class="form-text text-muted">Place images in the '/images/' folder.</small>
+        <label for="productName" class="form-label">Product Name:</label>
+        <input type="text" class="form-control" id="productName" name="productName" required>
     </div>
     <div class="d-grid">
         <button type="submit" class="btn btn-success btn-lg shadow">Write Review</button>
