@@ -130,6 +130,10 @@ app.get('/', (req, res) => {
 
 //new code testing
 
+app.get('/register', (req, res) => {
+    res.render('register', { messages: req.flash('error'), formData: req.flash('formData')[0] });
+});
+
 const validateRegistration = (req, res , next) => {
     const { username, email, password, address, contact} = req.body;
 
@@ -156,7 +160,7 @@ app.post('/register', validateRegistration, (req, res) => {
         }
         console.log(result);
         req.flash('success', 'Registration successful! Please log in.');
-        res.redirect('/login');
+        res.redirect('/');
     });
 });
 
