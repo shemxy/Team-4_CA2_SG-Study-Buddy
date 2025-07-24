@@ -7,17 +7,21 @@
 <body>
     <div class="container">
         <h1 class="mt-5">Welcome to our website</h1>
+
         <% if (messages && messages.length > 0) { %>
             <div class="alert alert-success">
                 <% messages.forEach(function(message) { %>
                     <p><%= message %></p>
                 <% }); %>
             </div>
-            Hello , <%= user.username %>
-            <br> <a href="/logout" class="btn btn-primary mt-3">Logout</a>
+        <% } %>
+
+        <% if (user) { %>
+            <p>Hello, <%= user.username %></p>
+            <a href="/logout" class="btn btn-primary mt-3">Logout</a>
         <% } else { %>
-        <a href="/register" class="btn btn-primary mt-3">Register</a>
-        <a href="/login" class="btn btn-primary mt-3">Login</a>
+            <a href="/register" class="btn btn-primary mt-3">Register</a>
+            <a href="/login" class="btn btn-primary mt-3">Login</a>
         <% } %>
     </div>
 </body>
